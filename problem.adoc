@@ -34,7 +34,7 @@ a. SpringXD (real time data gets ingested via SpringXD
 b. Spark (real time streams are sent to Spark for computing Q1-5 above)
 c. Gemfire (output from Spark goes into Gemfire)
 d. PHD/HAWQ (streams are also sent to PHD so that we could answe Q6 and A7 above)
-e. Application using PHP and Google Charts
+e. Application using PHP and Google Charts. Application is deployed in Pivotal Cloud Foundry
 
 See the below diagram for the stack used. NP stands for network packets so the stream would come as traffic on machine network port. SpringXD would be listening to this port.
 
@@ -42,11 +42,33 @@ See the below diagram for the stack used. NP stands for network packets so the s
 image::solarchitect.jpg[]
 
 
-=== Start Demo
+=== Launch Amazon AMI 
 
-* Start Gemfire
+In order to make it simpler, we've created the Amazon AMI to launch instances quickly. This AMI contains Pivotal Big Data Suite components needed in the demo - SpringXD, Spark, Pivotal Hadoop, Pivotal HAWQ and Gemfire. It also contains the web application, however we would deploy the web application in Pivotal Web Services. There is no .pem requirement to login in to the EC2 instance once AMI is launced.
 
-ssh as gpadmin/changme into your running instance. Run gfsh command
+Log in to your AWS account and search for AMI ID - "ami-b4a7a9e6" (available in Singapore region).
+
+- Launch it and make sure you choose m4.xlarge (16GB) instance size. Note: You could also try with t2.large (8GB) - we tried it and it works, however you may experience slowness.
+
+- Auto assign a public IP address
+
+- Add 25 GB SSD storage
+
+- Keep all traffic open on all ports in your security group settings
+
+- No need to choose a key pair.
+
+Once launched, you could ssh to machine using gpadmin/changeme credentials.
+
+
+=== Start Pivotal Hadoop via Ambari
+
+Follow the instructions on this link:start_phd.pdf[website] to start Pivotal Hadoop 3.0 via Ambari.
+
+
+=== Start Gemfire locator and server
+
+ssh as gpadmin/changme into your running EC2 instance. Run gfsh command
 [source,bash]
 ----
 $ gfsh
@@ -84,13 +106,13 @@ Successfully connected to: [host=ip-172-31-26-122.ap-southeast-1.compute.interna
 Cluster configuration service is up and running.
 ----
 
-Start server now using following command
+Start server now using following command. Make sure you replace <IP_ADDRESS> with EC2 ip address (you could find the ip address by ssh into EC2 instance and then running $/sbin/ifconfig command.
 
-gfsh> start server --name=server1 --cache-xml-file=/var/www/html/streamtaxi/gemfire-files/xml/server-cache.xml --initial-heap=50m --max-heap=100m --J=-Dgemfire.start-dev-rest-api=true --J=-Dgemfire.http-service-port=8081 --J=-Dgemfire.http-service-bind-address=localhost
+gfsh> start server --name=server1 --cache-xml-file=/var/www/html/streamtaxi/gemfire-files/xml/server-cache.xml --initial-heap=50m --max-heap=100m --J=-Dgemfire.start-dev-rest-api=true --J=-Dgemfire.http-service-port=8081 --J=-Dgemfire.http-service-bind-address=IP_ADDRESS
 
 [source,bash]
 ----
-gfsh>start server --name=server1 --cache-xml-file=/var/www/html/streamtaxi/gemfire-files/xml/server-cache.xml --initial-heap=50m --max-heap=100m --J=-Dgemfire.start-dev-rest-api=true --J=-Dgemfire.http-service-port=8081 --J=-Dgemfire.http-service-bind-address=localhost
+gfsh>start server --name=server1 --cache-xml-file=/var/www/html/streamtaxi/gemfire-files/xml/server-cache.xml --initial-heap=50m --max-heap=100m --J=-Dgemfire.start-dev-rest-api=true --J=-Dgemfire.http-service-port=8081 --J=-Dgemfire.http-service-bind-address=IP_ADDRESS
 Starting a GemFire Server in /home/gpadmin/server1...
 ----
 
@@ -107,14 +129,14 @@ RouteData
 TaxiData
 ----
 
-Come out of gfsh shell using exit command. And check that curl is working
+Come out of gfsh shell using exit command. And check that curl is working (replace IP_ADDRESS accordingly)
 
-$curl -i http://localhost:8081/gemfire-api/v1
+$curl -i http://IP_ADDRESS:8081/gemfire-api/v1
 
 you should see list of all regions in json format
 
 
-* Start SpringXD
+=== Start SpringXD server and shell
 
 Use following command to run SpringXD - Note: the command will not terminate.
 
@@ -156,14 +178,12 @@ xd:>
 
 Note - SpringXD Flo is also running on http://IPAddress:9393/admin-ui  where you could create streams using drag and drop. In this demo, we would be creating using command line interface.
 
-* Start HTTPD
+=== Start HTTPD
 
 Just in case httpd is not running, become root (passwd is changeme) and run "$service httpd start" command.
 
 
-* Start Pivotal Hadoop 
-
-Login to http://IPAdress:8080 (user/passwd - admin/admin) and follow this link:../springxd/start_phd.pdf[guide] to start PHD and HAWQ.
+=== Setup Pivotal Hadoop 
 
 Run following command on shell to delete all files (if present);
 
@@ -171,7 +191,8 @@ Run following command on shell to delete all files (if present);
 ----
 $hadoop fs -rm /xd/streamtaxi/*
 ----
-* Create Streams
+
+=== Create SpringXD Streams
 
 Go back to the XD Shell command line and run the following command -
 
@@ -230,7 +251,10 @@ xd:>
 
 Make sure it is deployed correctly by checking that there are no errors in SpringXD single node terminal 
 
-* Start taxi data on network port
+=== Deploy web application in Pivotal Web Services
+
+
+=== Start streaming taxi data on network port
 
 Run the following command to start streaming data on network port
 
@@ -240,9 +264,9 @@ Access your application at http://IPaddress/streamtaxi/index.html and see that t
 
 Note that there are three buttons, "Top 10 Areas(RT)", "Top 3 Routes(RT)" and "Free Taxies(RT)". Click on these button to see the streamed and processed data. 
 
-If you click on "Analytics on HD" button, you would not see any data because we are running sql queries on Hadoop via HAWQ. However, we have not created any stream that puts the data on hadoop. So in next section let's create a tap on existing stream and put the data on Hadoop.
+If you click on "Analytics on HD" button, you would not see any data because we are running sql queries on Hadoop via HAWQ. However, we have not created any stream that puts the data on hadoop. So in next section let's create a tap on existing stream and simultaneously put data on pivotal Hadoop.
 
-* Create hdfs tap stream
+=== Create hdfs tap stream
 
 Run following command on XD shell
 
