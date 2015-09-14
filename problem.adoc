@@ -259,6 +259,8 @@ Create a new user provided service. Replace the IP_ADDRESS with correct public I
 
 $cd webapps_php
 
+$cf login -a https://api.run.pivotal.io --skip-ssl-validation
+
 $cf create-user-provided-service data_service -p '{"GEMFIRE_URL":"http://IP_ADDRESS:8081/gemfire-api/v1/", "DB_HOST":"IP_ADDRESS", "DB_PORT":"10432"}'
 
 $cf push
@@ -267,11 +269,11 @@ Note down the APP_URL that you get after succesfully pushing the application.
 
 === Start streaming taxi data on network port
 
-Run the following command to start streaming data on network port
+Run the following command on EC2 instance to start streaming data on network port
 
 $cat /var/www/html/streamtaxi/sampledata/sorted_data.csv | nc localhost 1234
 
-Access your application at http://<APP_URL>/streamtaxi/index.html and see that the data is being shown on the website
+Access your application at http://<APP_URL> and see that the data is being shown on the website
 
 Note that there are three buttons, "Top 10 Areas(RT)", "Top 3 Routes(RT)" and "Free Taxies(RT)". Click on these button to see the streamed and processed data. 
 
@@ -291,8 +293,11 @@ Created and deployed new stream 'hdfsstream'
 
 This stream gets a duplicate from our earlier stream and puts it on HDFS.
 
-Also since, the webapp is running outside this EC2 instance, you need to allow querying via HAWQ in EC2 instance. Add following line towards the end of $MASTER_DATA_DIRECTORY/pga_hba.conf file
+Also since, the webapp is running outside this EC2 instance, you need to allow querying via HAWQ in EC2 instance. Add following line towards the end of $MASTER_DATA_DIRECTORY/pg_hba.conf file
 
+host     all         gpadmin         0.0.0.0/0       trust
+
+After editing the file, restart HAWQ server
 
 $gpstop -u
 
