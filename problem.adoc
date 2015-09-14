@@ -34,9 +34,9 @@ a. SpringXD (real time data gets ingested via SpringXD
 b. Spark (real time streams are sent to Spark for computing Q1-5 above)
 c. Gemfire (output from Spark goes into Gemfire)
 d. PHD/HAWQ (streams are also sent to PHD so that we could answe Q6 and A7 above)
-e. Application using PHP and Google Charts. Application is deployed in Pivotal Cloud Foundry
+e. Application using PHP and Google Charts. Application is deployed in Pivotal Cloud Foundry. All other services run inside EC2 instance, and they are exposed to the application using "user provided" services concept
 
-See the below diagram for the stack used. NP stands for network packets so the stream would come as traffic on machine network port. SpringXD would be listening to this port.
+See the below diagram for the stack used. NP stands for network packets so the stream would come as traffic on EC2's network port. SpringXD would be listening to this port.
 
 
 image::solarchitect.jpg[]
@@ -59,11 +59,6 @@ Log in to your AWS account and search for AMI ID - "ami-b4a7a9e6" (available in 
 - No need to choose a key pair.
 
 Once launched, you could ssh to machine using gpadmin/changeme credentials.
-
-
-=== Start Pivotal Hadoop via Ambari
-
-Follow the instructions on this link:start_phd.pdf[website] to start Pivotal Hadoop 3.0 via Ambari.
 
 
 === Start Gemfire locator and server
