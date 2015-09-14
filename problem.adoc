@@ -291,4 +291,11 @@ Created and deployed new stream 'hdfsstream'
 
 This stream gets a duplicate from our earlier stream and puts it on HDFS.
 
+Also since, the webapp is running outside this EC2 instance, you need to allow querying via HAWQ in EC2 instance. Add following line towards the end of $MASTER_DATA_DIRECTORY/pga_hba.conf file
+
+
+$gpstop -u
+
+
+
 If you now click on the "Analytics on HD" button, you could see sql queries being run correctly and Google charts are properly shown.
