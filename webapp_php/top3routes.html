@@ -1,0 +1,151 @@
+<html>
+  <head>
+   <!-- <meta http-equiv="refresh" content="10" > -->
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript">
+    
+    // Load the Visualization API and the piechart package.
+    google.load('visualization', '1', {'packages':['table']});
+    google.load('visualization', '1', {'packages':['corechart']});
+    google.load('visualization', '1', {'packages': ['map']});
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.setOnLoadCallback(drawMap);
+
+    function drawMap () {
+      var formData2 = {type:"MAPDATA"};
+      var jsonData2 = $.ajax({
+          url: "getTaxiData.php",
+          data: formData2,
+          type: "POST",
+          dataType:"json",
+          async: false
+          }).responseText;
+         
+      // Create our data table out of JSON data loaded from server.
+      var tabledata2 = new google.visualization.DataTable(jsonData2);
+
+      var url = 'http://icons.iconarchive.com/icons/icons-land/vista-map-markers/48/';
+
+      var options2 = {
+        zoomLevel: 13,
+        showTip: true,
+        useMapTypeControl: true,
+	mapType: 'normal',
+        icons: {
+          blue1: {
+            normal:   url + 'Map-Marker-Ball-Azure-icon.png',
+            selected:   url + 'Map-Marker-Ball-Azure-icon.png'
+          },
+          green1: {
+            normal:   url + 'Map-Marker-Push-Pin-1-Chartreuse-icon.png',
+            selected:   url + 'Map-Marker-Push-Pin-1-Chartreuse-icon.png'
+          },
+          pink1: {
+            normal:   url + 'Map-Marker-Ball-Pink-icon.png',
+            selected:   url + 'Map-Marker-Ball-Pink-icon.png'
+          },
+          blue2: {
+            normal: url + 'Map-Marker-Ball-Right-Azure-icon.png',
+            selected: url + 'Map-Marker-Ball-Right-Azure-icon.png'
+          },
+          green2: {
+            normal: url + 'Map-Marker-Push-Pin-1-Right-Chartreuse-icon.png',
+            selected: url + 'Map-Marker-Push-Pin-1-Right-Chartreuse-icon.png'
+          },
+          pink2: {
+            normal: url + 'Map-Marker-Ball-Right-Pink-icon.png',
+            selected: url + 'Map-Marker-Ball-Right-Pink-icon.png'
+          }
+        }
+      };
+      var map2 = new google.visualization.Map(document.getElementById('map_div'));
+
+      map2.draw(tabledata2, options2);
+   }
+
+
+    </script>
+    <script type="text/javascript" src="jQuery.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+                setInterval(drawMap, 10000);
+        });
+    </script>
+
+
+  </head>
+
+  <body>  
+     <table align="left">
+      <tr valign="top">
+        <td style="width: 50%;">
+    	  <img src="/Pivotal-Logo.jpg" style="width:300px;height:100px"/>
+        </td>
+        <td style="width: 50%;">
+  	  <div class="row-fluid">
+           <div class="span12" style="padding: 10px 0px;">
+             <h1>Real Time Streaming Demo</h1>
+           </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+    This demo showcases power of SpringXD (v1.1), Spark Streaming and Gemfire (v8.1).
+    <ul>
+      <li>SpringXD receives a stream of taxi data. Sample data can be viewed <a href="sampledata.html" target="_blank">here</a>.</li>
+      <li>Goal of the demo is to quickly evaluate top 10 busiest area based on taxi pickup and dropoff information received from streams.</li>
+      <li>Each area is a square 1kmx1km.</li>
+      <li>Data needs to be refreshed every 10 seconds.</li>
+      <li>Data is not clean. Drivers could give incorrect information like wrong fare, forgot to enter pickup location, wrong latitude/longitude etc</li>
+    </ul>
+    Below you could see <u>number of streams being processed</u>, <u>top 10 areas and details</u>. <b>ALL IN REAL TIME</b>.
+
+    <!--Div that will hold the charts-->
+<br/>
+    <br/>
+    <br/>
+    <table>
+      <tr valign="top">
+        <td style="width: 27%;">
+    	  <input type="button" value="Problem Statement" onclick="location.href='/index.html'"/>
+        </td>
+        <td style="width: 20%;">
+    	  <input type="button" value="Top 10 Areas(RT)" onclick="location.href='/taxidata.html'"/>
+        </td>
+        <td style="width: 20%;">
+    	  <input type="button" value="Top 3 Routes(RT)" onclick="location.href='/top3routes.html'"/>
+        </td>
+        <td style="width: 20%;">
+    	  <input type="button" value="Free Taxies(RT)" onclick="location.href='/freetaxies.html'"/>
+        </td>
+        <td style="width: 13%;">
+    	  <input type="button" value="Analytics on HD" onclick="location.href='/hawqanalytics.html'"/>
+        </td>
+      </tr>
+    </table>
+
+<br/>
+<br/>
+<br/>
+    <b><u>Top three routes (1- Blue, 2- Green, 3- Pink)</u></b>
+    <table>
+      <tr valign="top">
+        <td>
+          <div id="map_div" style="height: 500px; width: 900px"></div>
+        </td>
+      </tr>
+     </table>
+    <br/>
+  </body>
+</html>
