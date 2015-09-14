@@ -2,7 +2,7 @@
 instances: 1
 memory: 512M
 applications:
-- name: kapil-stream
-  host: kapil-stream
+- name: iot_taxi
+  host: iot_taxi
 services:
 - data_service

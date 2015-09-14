@@ -253,6 +253,17 @@ Make sure it is deployed correctly by checking that there are no errors in Sprin
 
 === Deploy web application in Pivotal Web Services
 
+Make sure you have an account on Pivotal Web Services (or have access to a running Pivotal Cloud Foundry install). You also need to download and install Cloud Foundry CLI. Download the webapp_php directory on your laptop and perform the following 
+
+Create a new user provided service. Replace the IP_ADDRESS with correct public IP of your EC2 instance.
+
+$cd webapps_php
+
+$cf create-user-provided-service data_service -p '{"GEMFIRE_URL":"http://IP_ADDRESS:8081/gemfire-api/v1/", "DB_HOST":"IP_ADDRESS", "DB_PORT":"10432"}'
+
+$cf push
+
+Note down the APP_URL that you get after succesfully pushing the application.
 
 === Start streaming taxi data on network port
 
@@ -260,7 +271,7 @@ Run the following command to start streaming data on network port
 
 $cat /var/www/html/streamtaxi/sampledata/sorted_data.csv | nc localhost 1234
 
-Access your application at http://IPaddress/streamtaxi/index.html and see that the data is being shown on the website
+Access your application at http://<APP_URL>/streamtaxi/index.html and see that the data is being shown on the website
 
 Note that there are three buttons, "Top 10 Areas(RT)", "Top 3 Routes(RT)" and "Free Taxies(RT)". Click on these button to see the streamed and processed data. 
 
